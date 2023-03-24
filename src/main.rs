@@ -2,7 +2,8 @@
 
 use std::env;
 
-use image::{io::Reader, DynamicImage};
+use image::{imageops::FilterType, io::Reader, DynamicImage};
+use termsize::Size;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -11,7 +12,15 @@ fn main() {
     } else {
         &args[1][..]
     };
-    let img = Reader::open(path).unwrap().decode().unwrap();
+
+    let Size { cols, rows } = termsize::get().unwrap();
+    let rows = rows * 2 - 5;
+
+    let img = Reader::open(path).unwrap().decode().unwrap().resize(
+        cols as u32,
+        rows as u32,
+        FilterType::Triangle,
+    );
 
     print_image(img);
 }
